@@ -9,6 +9,6 @@ env = "production"
 
 initLogging :: IO LogEnv
 initLogging = do
-  logEnv <- initLogEnv "ms-users" env
+  logEnv <- initLogEnv "superhuman-registry" env
   handleScribe <- mkHandleScribe ColorIfTerminal stdout InfoS V2
   return $ registerScribe "stdout" handleScribe logEnv

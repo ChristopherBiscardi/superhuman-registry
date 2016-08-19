@@ -6,14 +6,17 @@ import SR.Routes
 import Config (App)
 import SR.Types
 
-blobServer :: ServerT Blobs App
-blobServer = digests
+blobServer :: Name -> ServerT Blobs App
+blobServer name' = digests
         :<|> uploadBlob
         :<|> withUUID
-       where digests digest' = digestsServer digest'
-             withUUID uuid' = uuidBlob uuid' :<|> uuidBlob uuid' :<|> uuidBlob uuid' :<|> uuidBlob uuid'
+       where digests digest' = digestsServer name' digest'
+             withUUID uuid' = uuidBlob name' uuid'
+                         :<|> uuidBlob name' uuid'
+                         :<|> uuidBlob name' uuid'
+                         :<|> uuidBlob name' uuid'
 
-uuidBlob :: UUID -> App NoContent
+uuidBlob :: Name -> UUID -> App NoContent
 uuidBlob = undefined
 
 blobTODO :: Digest -> App NoContent
@@ -22,7 +25,7 @@ blobTODO name = undefined
 uploadBlob :: App NoContent
 uploadBlob = undefined
 
-digestsServer :: ServerT Digests App
-digestsServer digest' = blobTODO digest'
+digestsServer :: Name -> ServerT Digests App
+digestsServer name' digest' = blobTODO digest'
                    :<|> blobTODO digest'
                    :<|> blobTODO digest'

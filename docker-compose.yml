@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  pg:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=password
+  api:
+    build: .
+    volumes:
+      - .:/opt/api
+    working_dir: /opt/api
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_PORT: 5432
+      POSTGRES_HOST: 'pg'
+      POSTGRES_DATABASE_NAME: 'postgres'
+      HASHID_SALT: 'freakyunsecuresalt'
+    ports:
+      - "9000:8080"
+    command: bash -c "stack build --allow-different-user && stack exec sr-exe --allow-different-user"

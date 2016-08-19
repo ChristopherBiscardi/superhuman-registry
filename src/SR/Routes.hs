@@ -25,19 +25,20 @@ type V2Base = "v2" :> Get '[JSON] (Headers '[
 type API = V2Base :<|> "v2" :> V2API
 
 -- | V2 API Definition
-type V2API = Metadata :<|>
-  "blobs" :> Blobs
+type V2API = Metadata
   :<|> "_catalog" :> Get '[JSON] NoContent
 
 type Tags = "tags" :> "list" :> Get '[JSON] NoContent 
 
 type Metadata = Capture "name" Name :> (
-  Tags :<|> Manifests
+  Tags :<|>
+  "manifests" :> Manifests :<|>
+  "blobs" :> Blobs
   )
 
 type Blobs = Digests :<|> Upload
 
-type Manifests = "manifests" :> Capture "reference" Ref :> (
+type Manifests = Capture "reference" Ref :> (
   Get '[JSON] NoContent :<|>
   Put '[JSON] NoContent :<|>
   Delete '[JSON] NoContent :<|>

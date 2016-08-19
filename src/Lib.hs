@@ -1,6 +1,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TemplateHaskell #-}
 module Lib
     ( startApp
     ) where
@@ -16,6 +17,8 @@ import           Network.Wai.Middleware.Prometheus (PrometheusSettings (..),
                                                     prometheus)
 import Prometheus (register)
 import Prometheus.Metric.GHC (ghcMetrics)
+import Katip.Core
+import Katip.Monadic
 import Servant
 
 import Config
@@ -49,11 +52,12 @@ app cfg = serve api $ readerServer cfg
 apiServer :: ServerT API App
 apiServer = v2
        :<|> metadataServer
-       :<|> blobServer
-       :<|> catalogTODO
+       :<|> getCatalog
 
-catalogTODO :: App NoContent
-catalogTODO = undefined
+getCatalog :: App NoContent
+getCatalog = undefined
 
 v2 :: App (Headers '[Header "Docker-Distribution-API-Version" String] NoContent)
-v2 = return $ addHeader "registry/2.0" NoContent
+v2 = do
+  $(logTM) InfoS "registry/2.0"
+  return $ addHeader "registry/2.0" NoContent
