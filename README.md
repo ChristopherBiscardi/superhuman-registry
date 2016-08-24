@@ -28,6 +28,26 @@ Will will dump the route structure similar to the following.
    ┆
    ┆
    ├─ <capture>/
+   │  ├─ blobs/
+   │  │  ├─ <capture>/
+   │  │  │  ├─•
+   │  │  │  ┆
+   │  │  │  ├─•
+   │  │  │  ┆
+   │  │  │  └─•
+   │  │  ┆
+   │  │  └─ uploads/
+   │  │     ├─•
+   │  │     ┆
+   │  │     ┆
+   │  │     └─ <capture>/
+   │  │        ├─•
+   │  │        ┆
+   │  │        ├─•
+   │  │        ┆
+   │  │        ├─•
+   │  │        ┆
+   │  │        └─•
    │  ├─ manifests/
    │  │  └─ <capture>/
    │  │     ├─•
@@ -41,30 +61,9 @@ Will will dump the route structure similar to the following.
    │     └─ list/
    │        └─•
    ┆
-   ├─ _catalog/
-   │  └─•
-   └─ blobs/
-      ├─ <capture>/
-      │  ├─•
-      │  ┆
-      │  ├─•
-      │  ┆
-      │  └─•
-      ┆
-      └─ uploads/
-         ├─•
-         ┆
-         ┆
-         └─ <capture>/
-            ├─•
-            ┆
-            ├─•
-            ┆
-            ├─•
-            ┆
-            └─•
+   └─ _catalog/
+      └─•
 ```
-
 [servant]: http://haskell-servant.readthedocs.io/en/stable/
 [registry-v2]: https://github.com/docker/distribution/blob/bfa0a9c0973b5026d2e942dec29115c120e7f731/docs/spec/api.md
 [katip]: https://hackage.haskell.org/package/katip
