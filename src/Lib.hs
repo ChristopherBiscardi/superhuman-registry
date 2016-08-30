@@ -20,6 +20,7 @@ import Prometheus.Metric.GHC (ghcMetrics)
 import Katip.Core
 import Katip.Monadic
 import Servant
+import Network.Wai.Middleware.RequestLogger
 
 import Config
 import Initialization
@@ -37,7 +38,8 @@ startApp = do
 --  withResource pgPool initUserBackend
   logEnv <- initLogging
   let promMiddleware = prometheus $ PrometheusSettings ["metrics"] True True
-  run 8080 $ promMiddleware $ app $ AppConfig pgPool M.mempty mempty logEnv
+  print "booting"
+  run 8080 $ logStdoutDev $ promMiddleware $ app $ AppConfig pgPool M.mempty mempty logEnv
 
 readerServer :: AppConfig -> Server API
 readerServer cfg = enter (convertApp cfg) apiServer

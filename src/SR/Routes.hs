@@ -1,16 +1,24 @@
-{-# LANGUAGE DataKinds         #-}
-{-# LANGUAGE FlexibleContexts  #-}
-{-# LANGUAGE TemplateHaskell   #-}
-{-# LANGUAGE TypeOperators     #-}
+{-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE TypeOperators              #-}
 
 module SR.Routes where
 
-import Data.Text (Text)
-import Data.Text.IO
-import Servant
+import           Data.ByteString.Builder       (lazyByteString)
+import           Data.ByteString.Conversion.To (ToByteString (..))
+import           Data.ByteString.Lazy.Char8    (pack)
+import           Data.Text                     (Text)
+import qualified Data.Text                     as T
+import           Data.Text.IO
+import           Data.UUID                     (UUID, fromText, toASCIIBytes,
+                                                toLazyASCIIBytes, toText)
+import           Servant
 
-import SR.Types
+import           SR.Types
+--import SR.Combinators.CaptureUntilInstances
 
 api :: Proxy API
 api = Proxy
@@ -28,10 +36,10 @@ type API = V2Base :<|> "v2" :> V2API
 type V2API = Metadata
   :<|> "_catalog" :> Get '[JSON] NoContent
 
-type Tags = "tags" :> "list" :> Get '[JSON] NoContent 
+type Tags = "list" :> Get '[JSON] NoContent
 
-type Metadata = Capture "name" Name :> (
-  Tags :<|>
+type Metadata = Capture "namespace" Namespace :> Capture "name" Name :> (
+  "tags" :> Tags :<|>
   "manifests" :> Manifests :<|>
   "blobs" :> Blobs
   )
@@ -43,7 +51,7 @@ type Manifests = Capture "reference" Ref :> (
   Put '[JSON] NoContent :<|>
   Delete '[JSON] NoContent :<|>
   Head '[JSON] NoContent
-  ) 
+  )
 
 type Digests = Capture "digest" Digest :> (
   Head '[JSON] NoContent :<|>
@@ -52,7 +60,11 @@ type Digests = Capture "digest" Digest :> (
   )
 
 type Upload = "uploads" :> (
-  Post '[JSON] NoContent :<|>
+  PostAccepted '[JSON] (Headers '[
+    Header "Location" URI,
+    Header "Range" String,
+    Header "Docker-Upload-UUID" UUID
+  ] NoContent) :<|>
   Capture "uuid" UUID :> (
     Get '[JSON] NoContent :<|>
     Patch '[JSON] NoContent :<|>
@@ -60,4 +72,17 @@ type Upload = "uploads" :> (
     Delete '[JSON] NoContent
     )
   )
+
+instance FromHttpApiData UUID where
+  parseUrlPiece text = case (fromText text) of
+    Nothing -> Left $ T.append "Invalid UUID" text
+    Just uuid -> Right uuid
+instance ToByteString URI where
+  builder = lazyByteString . pack . show
+instance ToHttpApiData UUID where
+  toUrlPiece = toText
+  toHeader = toASCIIBytes
+
+instance ToByteString UUID where
+  builder = lazyByteString . toLazyASCIIBytes
 

@@ -19,4 +19,4 @@ services:
       HASHID_SALT: 'freakyunsecuresalt'
     ports:
       - "9000:8080"
-    command: bash -c "stack build --allow-different-user && stack exec sr-exe --allow-different-user"
+    command: bash -c "stack build --allow-different-user --exec \"stack exec sr-exe --allow-different-user\""

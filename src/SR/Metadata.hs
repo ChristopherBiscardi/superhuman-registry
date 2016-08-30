@@ -8,19 +8,19 @@ import SR.Types
 import SR.Blobs (blobServer)
 
 metadataServer :: ServerT Metadata App
-metadataServer name' = getTags name'
-                  :<|> manifestsServer name'
-                  :<|> blobServer name'
+metadataServer namespace' name' = getTags namespace' name'
+                  :<|> manifestsServer namespace' name'
+                  :<|> blobServer namespace' name'
 
-manifestsServer :: Name -> ServerT Manifests App
-manifestsServer name' ref' = manifestTODO name' ref'
-  :<|> manifestTODO name' ref'
-  :<|> manifestTODO name' ref'
-  :<|> manifestTODO name' ref'
+manifestsServer :: Namespace -> Name -> ServerT Manifests App
+manifestsServer namespace' name' ref' = manifestTODO namespace' name' ref'
+  :<|> manifestTODO namespace' name' ref'
+  :<|> manifestTODO namespace' name' ref'
+  :<|> manifestTODO namespace' name' ref'
 
 
-manifestTODO :: Name -> Ref -> App NoContent
-manifestTODO name _ = undefined
+manifestTODO :: Namespace -> Name -> Ref -> App NoContent
+manifestTODO namespace' name _ = undefined
 
-getTags :: Name -> App NoContent
-getTags name' = undefined
+getTags :: Namespace -> Name -> App NoContent
+getTags namespace' name' = undefined

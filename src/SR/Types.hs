@@ -5,10 +5,10 @@ import Data.Text (Text)
 import Servant
 
 -- | Type Utilities
-newtype Name = Name Text deriving (Show, FromHttpApiData)
+newtype Name = Name Text deriving (Show, FromHttpApiData, ToHttpApiData)
+newtype Namespace = Namespace Text deriving (Show, FromHttpApiData, ToHttpApiData)
 newtype Ref = Ref Text deriving (Show, FromHttpApiData)
 newtype Digest = Digest Text deriving (Show, FromHttpApiData)
-newtype UUID = UUID Text deriving (Show, FromHttpApiData)
 
 
 data ERRORS = BLOB_UNKNOWN
