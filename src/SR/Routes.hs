@@ -7,6 +7,8 @@
 
 module SR.Routes where
 
+import qualified Crypto.Hash                   as CH (Digest, SHA256)
+import           Data.ByteString               (ByteString)
 import           Data.ByteString.Builder       (lazyByteString)
 import           Data.ByteString.Conversion.To (ToByteString (..))
 import           Data.ByteString.Lazy.Char8    (pack)
@@ -17,6 +19,7 @@ import           Data.UUID                     (UUID, fromText, toASCIIBytes,
                                                 toLazyASCIIBytes, toText)
 import           Servant
 
+import           SR.HashedJSONContentType
 import           SR.Types
 --import SR.Combinators.CaptureUntilInstances
 
@@ -24,6 +27,7 @@ api :: Proxy API
 api = Proxy
 
 type Head = Verb 'HEAD 200
+type PutCreated = Verb 'PUT 201
 
 type V2Base = "v2" :> Get '[JSON] (Headers '[
   Header "Docker-Distribution-API-Version" String
@@ -48,13 +52,20 @@ type Blobs = Digests :<|> Upload
 
 type Manifests = Capture "reference" Ref :> (
   Get '[JSON] NoContent :<|>
-  Put '[JSON] NoContent :<|>
+  ReqBody '[HashedJSON] (CH.Digest CH.SHA256, Manifest) :>
+    PutCreated '[JSON] (Headers '[
+      Header "Content-Length" Int,
+      Header "Docker-Content-Digest" Digest
+      ] NoContent) :<|>
   Delete '[JSON] NoContent :<|>
   Head '[JSON] NoContent
   )
 
 type Digests = Capture "digest" Digest :> (
-  Head '[JSON] NoContent :<|>
+  Head '[JSON] (Headers '[
+    Header "Content-Length" Int,
+    Header "Docker-Content-Digest" Digest
+    ] NoContent) :<|>
   Get '[JSON] NoContent :<|>
   Delete '[JSON] NoContent
   )
@@ -67,8 +78,15 @@ type Upload = "uploads" :> (
   ] NoContent) :<|>
   Capture "uuid" UUID :> (
     Get '[JSON] NoContent :<|>
-    Patch '[JSON] NoContent :<|>
-    Put '[JSON] NoContent :<|>
+    ReqBody '[OctetStream] ByteString :>
+      Header "range" String :>
+      PatchNoContent '[JSON] (Headers '[
+        Header "Location" URI,
+        Header "Range" String,
+        Header "Docker-Upload-UUID" UUID
+      ] NoContent) :<|>
+    QueryParam "digest" Digest :>
+      Put '[JSON] NoContent :<|>
     Delete '[JSON] NoContent
     )
   )
@@ -85,4 +103,3 @@ instance ToHttpApiData UUID where
 
 instance ToByteString UUID where
   builder = lazyByteString . toLazyASCIIBytes
-

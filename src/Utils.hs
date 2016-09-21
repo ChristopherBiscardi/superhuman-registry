@@ -4,6 +4,8 @@ import Control.Monad.Reader
 import Database.PostgreSQL.Simple
 import Data.Pool
 import Control.Exception
+import Data.ByteString (ByteString)
+import Crypto.Hash
 
 import Config
 
@@ -18,3 +20,6 @@ tryRunPG fn = do
   pool <- asks getPG
   thing <- liftIO $ try $ withResource pool fn
   return thing
+
+mkDigest :: ByteString -> Digest SHA256
+mkDigest = hash
