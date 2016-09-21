@@ -4,6 +4,10 @@ The Superhuman Registry is a
 [Docker Registry HTTP API V2][registry-v2] compatible registry
 implemented in Haskell with [Servant][servant].
 
+You may be interested in the
+[in-progress](https://github.com/ChristopherBiscardi/christopherbiscardi.github.com/blob/leo/data/building-a-docker-registry/index.post)
+blog post about this work.
+
 ## Logging
 
 Logging is implemented via [Katip][katip]
