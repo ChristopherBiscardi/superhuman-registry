@@ -55,7 +55,7 @@ type Manifests = Capture "reference" Ref :> (
   ReqBody '[HashedJSON] (CH.Digest CH.SHA256, Manifest) :>
     PutCreated '[JSON] (Headers '[
       Header "Content-Length" Int,
-      Header "Docker-Content-Digest" Digest
+      Header "Docker-Content-Digest" CDigest
       ] NoContent) :<|>
   Delete '[JSON] NoContent :<|>
   Head '[JSON] NoContent

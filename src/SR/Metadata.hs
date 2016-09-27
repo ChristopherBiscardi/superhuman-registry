@@ -38,14 +38,15 @@ putManifest :: Namespace
             -> (CH.Digest CH.SHA256, Manifest)
             -> App (Headers '[
     Header "Content-Length" Int,
-    Header "Docker-Content-Digest" Digest
+    Header "Docker-Content-Digest" CDigest
     ] NoContent)
-putManifest namespace' name ref' body' = do
+putManifest namespace' name ref' (digest, manifest) = do
   liftIO $ print "putManifest"
+  liftIO $ print digest
   -- let h = show body'
   -- liftIO $ print h
   return $ addHeader 0
-         $ addHeader (Digest "As") NoContent
+         $ addHeader (CDigest digest) NoContent
 
 deleteManifest :: Namespace -> Name -> Ref -> App NoContent
 deleteManifest namespace' name _ = do

@@ -7,7 +7,7 @@ import qualified Crypto.Hash                   as CH
 import           Data.Aeson
 import           Data.Aeson.Types              (Options (..), defaultOptions)
 import           Data.ByteString               (ByteString)
-import           Data.ByteString.Builder       (byteString)
+import           Data.ByteString.Builder       (byteString, stringUtf8)
 import           Data.ByteString.Conversion.To (ToByteString (..))
 import           Data.Char                     (toLower)
 import           Data.Text                     (Text)
@@ -30,6 +30,8 @@ instance FromJSON CDigest where
 --          liftIO $ print
           fail $ show txt ++ " is not a digest"
         Just v -> pure $ CDigest v
+instance ToByteString CDigest where
+  builder (CDigest hash) = stringUtf8 $ "sha256:" ++ show hash
 
 instance FromJSON URI where
   parseJSON = withText "URI" $ \txt -> case parseURI $ T.unpack txt of
@@ -64,7 +66,8 @@ instance FromJSON V1_JSON where
       False -> fail "incorrect config mediatype string"
 
 data Config = Config { cMediaType :: V1_JSON
-                     , cSize      :: Int
+                     -- | Sometimes the 1.12 docker client doesn't send the size
+                     , cSize      :: Maybe Int
                      , cDigest    :: String -- CDigest
                      } deriving (Generic, Show, Eq)
 instance FromJSON Config where
@@ -81,7 +84,8 @@ instance FromJSON LayerMediaTypes where
         False -> fail "no matching layer mediatype"
 
 data Layer = Layer { lMediaType :: LayerMediaTypes
-                   , lSize      :: Int
+                     -- | Sometimes the 1.12 docker client doesn't send the size
+                   , lSize      :: Maybe Int
                    , lDigest    :: String -- CDigest
                    , lUrls      :: Maybe [URI]
                    } deriving (Generic, Show, Eq)

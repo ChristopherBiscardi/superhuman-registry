@@ -5,7 +5,8 @@ import Database.PostgreSQL.Simple
 import Data.Pool
 import Control.Exception
 import Data.ByteString (ByteString)
-import Crypto.Hash
+import qualified Data.ByteString.Lazy as LB
+import Crypto.Hash (hash, hashlazy, Digest, SHA256)
 
 import Config
 
@@ -23,3 +24,6 @@ tryRunPG fn = do
 
 mkDigest :: ByteString -> Digest SHA256
 mkDigest = hash
+
+mkLazyDigest :: LB.ByteString -> Digest SHA256
+mkLazyDigest = hashlazy

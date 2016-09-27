@@ -70,7 +70,6 @@ headDigest :: Namespace
     Header "Docker-Content-Digest" Digest
     ] NoContent)
 headDigest namespace' name' digest' = do
-  liftIO $ print "headDigest"
   return $ addHeader 0
          $ addHeader digest' NoContent
 

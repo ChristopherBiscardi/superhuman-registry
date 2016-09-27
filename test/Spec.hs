@@ -16,25 +16,25 @@ parsedManifest = V2_2 {
   mediaType = Manifest_V2_JSON,
   config = Config {
       cMediaType = V1_JSON,
-      cSize = 7023,
+      cSize = Just 7023,
       cDigest = "sha256:b5b2b2c507a0944348e0303114d8d93aaaa081732b86451d9bce1f432a537bc7"
       },
   layers = [
       Layer {
           lMediaType = Diff,
-          lSize = 32654,
+          lSize = Just 32654,
           lDigest = "sha256:e692418e4cbaf90ca69d05a66403747baa33ee08806650b51fab815ad7fc331f",
           lUrls = Nothing
           },
       Layer {
           lMediaType = Diff,
-          lSize = 16724,
+          lSize = Just 16724,
           lDigest = "sha256:3c3a4604a545cdc127456d94e421cd355bca5b528f4a9c1905b15da2eb4a4c6b",
           lUrls = Nothing
           },
       Layer {
           lMediaType = Diff,
-          lSize = 73109,
+          lSize = Just 73109,
           lDigest = "sha256:ec4b8955958665577945c89419d1af06b5f7636b4ac3da7f12184802ad867736",
           lUrls = Nothing
           }
