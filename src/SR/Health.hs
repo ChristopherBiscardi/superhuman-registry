@@ -2,22 +2,20 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeOperators     #-}
 
-module Heartbeat where
+module SR.Health where
 
 import           Control.Exception
 import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Database.PostgreSQL.Simple
 import           Servant
-
+import Hasql.Session (sql)
 import           Config
-import           Utils                      (tryRunPG)
+import           Utils                      (runPG)
 
 type HealthCheckAPI = "health" :> Get '[JSON] NoContent
 
+-- | This will return 500 if there's a pg error
 checkHealth :: App NoContent
 checkHealth = do
-  pgCheck <- tryRunPG $ flip query_ "select 1"
-  case (pgCheck :: Either SomeException [Only Int]) of
-    Left e -> throwError err500 -- TODO: Log this as an Error
-    Right _ -> return NoContent
+  _ <- runPG $ sql "select 1"
+  return NoContent
 

@@ -39,9 +39,23 @@ packages:
     commit: 021f8f261f465ff55811c1f38199b53112a0b0e9
   subdirs:
   - katip
+- location:
+    git: https://github.com/ChristopherBiscardi/hasql-lo
+    commit: 0bac029b392cc9ea2e94fda7c4b35f517d11c8d5
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
 extra-deps: [
+  hasql-0.19.15.1,
+  hasql-pool-0.4.1,
+  hasql-transaction-0.4.5.1,
+  bytestring-tree-builder-0.2.7.1,
+  contravariant-extras-0.3.3.1,
+  tuple-th-0.2.5,
+  # end Hasql deps
+  # hasql-lo
+  hasql-th-0.2.1,
+  # end hasql-lo
+  envy-1.2.0.1
 ]
 
 # Override default flag values for local packages and extra-deps

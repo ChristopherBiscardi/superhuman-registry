@@ -1,0 +1,8 @@
+FROM postgres
+
+RUN apt-get update && apt-get install sqitch -y
+
+COPY . /opt/sqitch
+WORKDIR /opt/sqitch
+
+COPY ./initdb.sh /docker-entrypoint-initdb.d/initdb.sh

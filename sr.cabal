@@ -18,21 +18,28 @@ library
   exposed-modules:     Lib
                      , Types
                      , Config
-                     , Heartbeat
                      , Initialization
                      , Utils
                      , Logging
-                     , SR.Routes
-                     , SR.Types
+                     , Env
                      , SR.Blobs
-                     , SR.Metadata
-                     , SR.Storage.Types
                      , SR.HashedJSONContentType
+                     , SR.Health
+                     , SR.Metadata
+                     , SR.Routes
+                     , SR.Storage.Types
+                     , SR.Types
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , bytestring
                      , bytestring-conversion
                      , cryptonite
+                     , envy
+                     , hasql
+                     , hasql-lo
+                     , hasql-pool
+                     , hasql-transaction
+                     , hasql-th
                      , http-api-data
                      , http-media
                      , katip

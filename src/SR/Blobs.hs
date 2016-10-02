@@ -1,22 +1,23 @@
+{-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeOperators     #-}
 module SR.Blobs where
 
-import Servant
-import Control.Monad.IO.Class (liftIO)
-import SR.Routes
-import Config (App)
-import SR.Types
-import Data.UUID.V4 (nextRandom)
-import Data.UUID (UUID, toString)
-import Network.URI (relativeTo, parseURI)
-import Katip.Core (Severity(..), logStr)
-import Katip.Monadic
-import Data.Maybe (fromJust)
-import Data.ByteString (ByteString, writeFile)
-import Data.UUID (toString)
+import           Config                 (App)
+import           Control.Monad.IO.Class (liftIO)
+import           Data.ByteString        (ByteString, writeFile)
+import           Data.Maybe             (fromJust)
+import           Data.UUID              (UUID, toString)
+import           Data.UUID              (toString)
+import           Data.UUID.V4           (nextRandom)
+import           Katip.Core             (Severity (..), logStr)
+import           Katip.Monadic
+import           Network.URI            (parseURI, relativeTo)
+import           Servant
+import           SR.Routes
+import           SR.Types
+import Hasql.LO ()
 
 blobServer :: Namespace -> Name -> ServerT Blobs App
 blobServer namespace' name' = digests

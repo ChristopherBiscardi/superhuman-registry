@@ -4,15 +4,15 @@ module Config where
 import           Control.Monad.Except       (ExceptT, MonadError, MonadIO)
 import           Control.Monad.Reader       (ReaderT, asks)
 import           Control.Monad.Reader.Class (MonadReader)
-import           Data.Pool
-import           Database.PostgreSQL.Simple (Connection)
+--import           Database.PostgreSQL.Simple (Connection)
+import qualified Hasql.Pool                 as P (Pool)
 import           Katip
 import           Servant                    (ServantErr)
 
-data AppConfig = AppConfig { getPG         :: Pool Connection
-                           , acKNamespace  :: Namespace
-                           , acKContext    :: LogContexts
-                           , acLogEnv      :: LogEnv
+data AppConfig = AppConfig { acPGPool     :: P.Pool
+                           , acKNamespace :: Namespace
+                           , acKContext   :: LogContexts
+                           , acLogEnv     :: LogEnv
                            }
 
 newtype App a = App { runApp :: ReaderT AppConfig (ExceptT ServantErr IO) a

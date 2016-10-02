@@ -21,6 +21,7 @@ import           Servant
 
 import           SR.HashedJSONContentType
 import           SR.Types
+import SR.Health (HealthCheckAPI)
 --import SR.Combinators.CaptureUntilInstances
 
 api :: Proxy API
@@ -34,7 +35,9 @@ type V2Base = "v2" :> Get '[JSON] (Headers '[
   ] NoContent)
 
 -- | Main API Type
-type API = V2Base :<|> "v2" :> V2API
+type API = V2Base
+      :<|> "v2" :> V2API
+      :<|> HealthCheckAPI
 
 -- | V2 API Definition
 type V2API = Metadata
