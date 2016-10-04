@@ -55,7 +55,8 @@ extra-deps: [
   # hasql-lo
   hasql-th-0.2.1,
   # end hasql-lo
-  envy-1.2.0.1
+  envy-1.2.0.1,
+  trifecta-1.6,
 ]
 
 # Override default flag values for local packages and extra-deps

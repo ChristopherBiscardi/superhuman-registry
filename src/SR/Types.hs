@@ -7,6 +7,8 @@ import qualified Crypto.Hash                   as CH
 import           Data.Aeson
 import           Data.Aeson.Types              (Options (..), defaultOptions)
 import           Data.ByteString               (ByteString)
+import qualified Data.ByteString as B (intercalate)
+import qualified Data.ByteString.Char8 as C
 import           Data.ByteString.Builder       (byteString, stringUtf8)
 import           Data.ByteString.Conversion.To (ToByteString (..))
 import           Data.Char                     (toLower)
@@ -17,17 +19,18 @@ import qualified Data.Text.Encoding            as TE
 import           GHC.Generics
 import           Network.URI                   (parseURI)
 import           Servant
+import           Text.Parser.Combinators       (sepBy1)
+import           Text.Trifecta
+import           Text.Trifecta.Delta           (Delta (..))
 
 -- | TODO: replace `String` with `CDigest` to validate digests and
 -- reject manifests with invalid digests
-
 newtype CDigest = CDigest (CH.Digest CH.SHA256) deriving (Show, Eq)
 -- | Orphan Hash instance
 instance FromJSON CDigest where
   parseJSON = withText "SHA256 Digest" $ \txt -> do
     case CH.digestFromByteString $ encodeUtf8 txt of
         Nothing -> do
---          liftIO $ print
           fail $ show txt ++ " is not a digest"
         Just v -> pure $ CDigest v
 instance ToByteString CDigest where
@@ -42,6 +45,23 @@ newtype Name = Name Text deriving (Show, FromHttpApiData, ToHttpApiData)
 newtype Namespace = Namespace Text deriving (Show, FromHttpApiData, ToHttpApiData)
 newtype Ref = Ref Text deriving (Show, FromHttpApiData)
 newtype Digest = Digest ByteString deriving (Show)
+
+data Range = Range { start :: Int
+                   , end   :: Int
+                   } deriving Show
+parseRange :: Parser Range
+parseRange = do
+  start' <- some digit
+  _ <- char '-'
+  end' <- some digit
+  return $ Range (read start') (read end')
+
+instance FromHttpApiData Range where
+  parseUrlPiece text = case (parseString parseRange (Columns 0 0) $ show text) of
+    Failure err -> undefined
+    Text.Trifecta.Success range -> Right range
+instance ToByteString Range where
+  builder (Range start' end') = byteString $ B.intercalate "-" [C.pack $ show start', C.pack $ show end']
 
 instance FromHttpApiData Digest where
   parseUrlPiece text = Right $ Digest $ TE.encodeUtf8 text

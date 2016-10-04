@@ -76,16 +76,16 @@ type Digests = Capture "digest" Digest :> (
 type Upload = "uploads" :> (
   PostAccepted '[JSON] (Headers '[
     Header "Location" URI,
-    Header "Range" String,
+    Header "Content-Range" Range,
     Header "Docker-Upload-UUID" UUID
   ] NoContent) :<|>
   Capture "uuid" UUID :> (
     Get '[JSON] NoContent :<|>
     ReqBody '[OctetStream] ByteString :>
-      Header "range" String :>
+      Header "Content-Range" Range :>
       PatchNoContent '[JSON] (Headers '[
         Header "Location" URI,
-        Header "Range" String,
+        Header "Content-Range" Range,
         Header "Docker-Upload-UUID" UUID
       ] NoContent) :<|>
     QueryParam "digest" Digest :>

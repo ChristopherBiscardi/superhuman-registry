@@ -16,12 +16,13 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Lib
-                     , Types
+                     , Backend
                      , Config
-                     , Initialization
-                     , Utils
-                     , Logging
                      , Env
+                     , Initialization
+                     , Logging
+                     , Types
+                     , Utils
                      , SR.Blobs
                      , SR.HashedJSONContentType
                      , SR.Health
@@ -33,6 +34,8 @@ library
                      , aeson
                      , bytestring
                      , bytestring-conversion
+                     , contravariant
+                     , contravariant-extras
                      , cryptonite
                      , envy
                      , hasql
@@ -46,6 +49,7 @@ library
                      , monad-control
                      , mtl >= 2.2.1
                      , network-uri
+                     , parsers
                      , postgresql-simple >= 0.5.1.2
                      , prometheus-client >= 0.1.0.1
                      , prometheus-metrics-ghc >= 0.1.0.1
@@ -55,6 +59,7 @@ library
                      , text
                      , time
                      , transformers
+                     , trifecta
                      , unix
                      , unordered-containers
                      , uuid

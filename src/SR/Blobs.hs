@@ -17,7 +17,9 @@ import           Network.URI            (parseURI, relativeTo)
 import           Servant
 import           SR.Routes
 import           SR.Types
-import Hasql.LO ()
+import qualified Data.Text as T
+
+import Backend (startNewUpload, receivePushContent)
 
 blobServer :: Namespace -> Name -> ServerT Blobs App
 blobServer namespace' name' = digests
@@ -51,15 +53,15 @@ patchBlob :: Namespace
           -> Name
           -> UUID
           -> ByteString
-          -> Maybe String
+          -> Maybe Range
           -> App (Headers '[
     Header "Location" URI,
-    Header "Range" String,
+    Header "Content-Range" Range,
     Header "Docker-Upload-UUID" UUID
   ] NoContent)
-patchBlob namespace' name' uuid' blob range' = do
+patchBlob namespace'@(Namespace ns') name'@(Name n') uuid' blob range' = do
   liftIO $ print range'
-  liftIO $ Data.ByteString.writeFile ("./tmp/" ++ toString uuid') blob
+  _ <- receivePushContent range' blob uuid' $ T.intercalate "/" [ns', n']
   response <- mkHeaders range' uuid' namespace' name'
   return response
 
@@ -71,6 +73,7 @@ headDigest :: Namespace
     Header "Docker-Content-Digest" Digest
     ] NoContent)
 headDigest namespace' name' digest' = do
+  throwError err404
   return $ addHeader 0
          $ addHeader digest' NoContent
 
@@ -87,13 +90,12 @@ deleteDigest namespace' name' digest = do
 
 uploadBlob :: Namespace -> Name -> App (Headers '[
     Header "Location" URI,
-    Header "Range" String,
+    Header "Content-Range" Range,
     Header "Docker-Upload-UUID" UUID
   ] NoContent)
-uploadBlob namespace' name' = do
-  uuid <- liftIO $ nextRandom
+uploadBlob namespace'@(Namespace ns') name'@(Name n') = do
+  uuid <- startNewUpload (T.intercalate "/" [ns', n'])
   response <- mkHeaders Nothing uuid namespace' name'
-  $(logTM) InfoS (logStr $ show $ getHeaders response)
   return response
 
 digestsServer :: Namespace -> Name -> ServerT Digests App
@@ -101,13 +103,13 @@ digestsServer namespace' name' digest' = headDigest namespace' name' digest'
                    :<|> getDigest namespace' name' digest'
                    :<|> deleteDigest namespace' name' digest'
 
-mkHeaders :: Maybe String
+mkHeaders :: Maybe Range
           -> UUID
           -> Namespace
           -> Name
           -> App (Headers '[
                  Header "Location" URI,
-                 Header "Range" String,
+                 Header "Content-Range" Range,
                  Header "Docker-Upload-UUID" UUID
                  ] NoContent)
 mkHeaders range uuid namespace' name' = do
@@ -117,6 +119,6 @@ mkHeaders range uuid namespace' name' = do
       uri = mkURI namespace' name' uuid `relativeTo` (fromJust $ parseURI "http://localhost:9000/")
   return $ addHeader uri
          $ addHeader (case range of
-                         Nothing -> "0-0"
-                         Just v -> v)
+                         Nothing -> Range 0 0
+                         Just range' -> range')
          $ addHeader uuid NoContent
