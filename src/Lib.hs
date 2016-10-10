@@ -40,12 +40,13 @@ startApp = do
   register ghcMetrics
   let promMiddleware = prometheus $ PrometheusSettings ["metrics"] True True
   pool <- pgSettings
+  srSettings' <- srSettings
   logEnv <- initLogging
   print "booting"
   run 8080 $ logStdoutDev
            $ promMiddleware
            $ app
-           $ AppConfig pool M.mempty mempty logEnv
+           $ AppConfig pool M.mempty mempty logEnv srSettings'
 
 readerServer :: AppConfig -> Server API
 readerServer cfg = enter (convertApp cfg) apiServer

@@ -6,8 +6,11 @@ module SR.Blobs where
 
 import           Config                 (App)
 import           Control.Monad.IO.Class (liftIO)
+import           Control.Monad.Reader   (asks)
 import           Data.ByteString        (ByteString, writeFile)
+import qualified Data.ByteString        as B
 import           Data.Maybe             (fromJust)
+import qualified Data.Text              as T
 import           Data.UUID              (UUID, toString)
 import           Data.UUID              (toString)
 import           Data.UUID.V4           (nextRandom)
@@ -15,11 +18,14 @@ import           Katip.Core             (Severity (..), logStr)
 import           Katip.Monadic
 import           Network.URI            (parseURI, relativeTo)
 import           Servant
+
+import           Backend                (headBlob, receivePushContent,
+                                         startNewUpload)
+import           Backend.Types          (BlobExistance (..))
+import           Config                 (AppConfig (..))
+import           Env                    (Settings (..))
 import           SR.Routes
 import           SR.Types
-import qualified Data.Text as T
-
-import Backend (startNewUpload, receivePushContent)
 
 blobServer :: Namespace -> Name -> ServerT Blobs App
 blobServer namespace' name' = digests
@@ -113,10 +119,10 @@ mkHeaders :: Maybe Range
                  Header "Docker-Upload-UUID" UUID
                  ] NoContent)
 mkHeaders range uuid namespace' name' = do
+  settings <- asks acSettings
   let uploadAPI = Proxy :: Proxy ("v2" :> Capture "namespace" Namespace :> Capture "name" Name :> "blobs" :> "uploads" :> Capture "uuid" UUID :> Put '[JSON] NoContent)
       mkURI = safeLink api uploadAPI
-      -- TODO: move parseURI into config
-      uri = mkURI namespace' name' uuid `relativeTo` (fromJust $ parseURI "http://localhost:9000/")
+      uri = mkURI namespace' name' uuid `relativeTo` srHostname settings
   return $ addHeader uri
          $ addHeader (case range of
                          Nothing -> Range 0 0

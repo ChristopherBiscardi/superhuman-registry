@@ -8,11 +8,13 @@ import           Control.Monad.Reader.Class (MonadReader)
 import qualified Hasql.Pool                 as P (Pool)
 import           Katip
 import           Servant                    (ServantErr)
+import qualified Env as SR
 
 data AppConfig = AppConfig { acPGPool     :: P.Pool
                            , acKNamespace :: Namespace
                            , acKContext   :: LogContexts
                            , acLogEnv     :: LogEnv
+                           , acSettings :: SR.Settings
                            }
 
 newtype App a = App { runApp :: ReaderT AppConfig (ExceptT ServantErr IO) a
