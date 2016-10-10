@@ -81,9 +81,9 @@ instance FromJSON Manifest
 data V1_JSON = V1_JSON deriving (Generic, Show, Eq)
 instance FromJSON V1_JSON where
   parseJSON = withText "Config Media Type V1 JSON" $
-    \txt -> case (txt == "application/vnd.docker.container.image.v1+json") of
-      True -> pure V1_JSON
-      False -> fail "incorrect config mediatype string"
+    \mediaType -> case mediaType of
+      "application/vnd.docker.container.image.v1+json" -> pure V1_JSON
+      otherwise -> fail "incorrect config mediatype string"
 
 data Config = Config { cMediaType :: V1_JSON
                      -- | Sometimes the 1.12 docker client doesn't send the size
@@ -97,11 +97,10 @@ data LayerMediaTypes = Diff | Foreign
                      deriving (Generic, Show, Eq)
 instance FromJSON LayerMediaTypes where
   parseJSON = withText "Layer Media Types" $
-    \txt -> case (txt == "application/vnd.docker.image.rootfs.diff.tar.gzip") of
-      True -> pure Diff
-      False -> case (txt == "application/vnd.docker.image.rootfs.foreign.diff.tar.gzip") of
-        True -> pure Foreign
-        False -> fail "no matching layer mediatype"
+    \mediaType -> case mediaType of
+      "application/vnd.docker.image.rootfs.diff.tar.gzip" -> pure Diff
+      "application/vnd.docker.image.rootfs.foreign.diff.tar.gzip" -> pure Foreign
+      otherwise -> fail "no matching layer mediatype"
 
 data Layer = Layer { lMediaType :: LayerMediaTypes
                      -- | Sometimes the 1.12 docker client doesn't send the size
@@ -115,9 +114,9 @@ instance FromJSON Layer where
 data Manifest_V2_JSON = Manifest_V2_JSON deriving (Generic, Show, Eq)
 instance FromJSON Manifest_V2_JSON where
   parseJSON = withText "Manifest V2 JSON" $
-    \txt -> case (txt == "application/vnd.docker.distribution.manifest.v2+json") of
-      True -> pure Manifest_V2_JSON
-      False -> fail "incorrect manifest version string"
+    \mediaType -> case mediaType of
+      "application/vnd.docker.distribution.manifest.v2+json" -> pure Manifest_V2_JSON
+      otherwise -> fail "incorrect manifest version string"
 
 data ERRORS = BLOB_UNKNOWN
             | BLOB_UPLOAD_INVALID
