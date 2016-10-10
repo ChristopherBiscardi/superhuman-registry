@@ -3,21 +3,23 @@ module Backend where
 
 import           Contravariant.Extras.Contrazip (contrazip2, contrazip3)
 import           Control.Monad.Reader
-import           Data.Text      (Text)
-import           Data.UUID      (UUID (..))
-import qualified Hasql.Decoders as D
-import qualified Hasql.Encoders as E
-import qualified Hasql.Pool     as P
-import           Hasql.Query    (Query, statement)
-import Hasql.Session (query)
-import qualified Hasql.Transaction as HT
-import Hasql.LO
-import GHC.Int (Int32)
-import Data.ByteString (ByteString)
+import           Data.ByteString                (ByteString)
+import           Data.Text                      (Text)
+import qualified Data.Text                      as T
+import           Data.UUID                      (UUID (..))
+import           GHC.Int                        (Int32, Int64)
+import qualified Hasql.Decoders                 as D
+import qualified Hasql.Encoders                 as E
+import           Hasql.LO
+import qualified Hasql.Pool                     as P
+import           Hasql.Query                    (Query, statement)
+import           Hasql.Session                  (query)
+import qualified Hasql.Transaction              as HT
 
-import Config
-import SR.Types
-import Utils (runPG)
+import           Backend.Types                  (BlobExistance (..))
+import           Config
+import           SR.Types
+import           Utils                          (runPG)
 
 type Reponame = Text
 
@@ -80,3 +82,24 @@ getLOID =
                  (E.value E.text)
     decoder =
       D.singleRow (D.nullableValue D.int4)
+
+-- | HEAD blob
+-- TODO: fix string handling
+-- TODO: Change Digest to `Digest SHA256`
+headBlob :: Digest -> App BlobExistance
+headBlob (Digest digest) = do
+  maybeSize <- runPG (query (T.pack $ show digest) doesBlobExist)
+  case maybeSize of
+    Just size -> return BLOB_EXISTS
+    Nothing -> return UNKNOWN_BLOB
+  where
+    doesBlobExist :: Query (Text) (Maybe Int64)
+    doesBlobExist =
+      statement sql encoder decoder True
+      where
+        sql =
+          "SELECT size FROM sr.blobs WHERE id = $1"
+        encoder =
+          E.value E.text
+        decoder =
+          D.maybeRow $ D.value D.int8

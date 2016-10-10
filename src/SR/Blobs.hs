@@ -79,9 +79,12 @@ headDigest :: Namespace
     Header "Docker-Content-Digest" Digest
     ] NoContent)
 headDigest namespace' name' digest' = do
-  throwError err404
-  return $ addHeader 0
-         $ addHeader digest' NoContent
+  blobExists <- headBlob digest'
+  case blobExists of
+    BLOB_EXISTS -> return
+      $ addHeader 0
+      $ addHeader digest' NoContent
+    UNKNOWN_BLOB -> throwError err404
 
 getDigest :: Namespace -> Name -> Digest -> App NoContent
 getDigest namespace' name' digest = do
