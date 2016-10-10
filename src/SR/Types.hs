@@ -26,7 +26,6 @@ import           Text.Trifecta.Delta           (Delta (..))
 -- | TODO: replace `String` with `CDigest` to validate digests and
 -- reject manifests with invalid digests
 newtype CDigest = CDigest (CH.Digest CH.SHA256) deriving (Show, Eq)
--- | Orphan Hash instance
 instance FromJSON CDigest where
   parseJSON = withText "SHA256 Digest" $ \txt -> do
     case CH.digestFromByteString $ encodeUtf8 txt of
