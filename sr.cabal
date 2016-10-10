@@ -50,7 +50,6 @@ library
                      , mtl >= 2.2.1
                      , network-uri
                      , parsers
-                     , postgresql-simple >= 0.5.1.2
                      , prometheus-client >= 0.1.0.1
                      , prometheus-metrics-ghc >= 0.1.0.1
                      , resource-pool
