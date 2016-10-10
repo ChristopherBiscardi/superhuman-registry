@@ -41,7 +41,7 @@ packages:
   - katip
 - location:
     git: https://github.com/ChristopherBiscardi/hasql-lo
-    commit: 0bac029b392cc9ea2e94fda7c4b35f517d11c8d5
+    commit: 3beb3cc158b3a6fb75ca837ca194f5debacc1962
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
 extra-deps: [
