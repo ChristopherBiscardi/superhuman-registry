@@ -5,3 +5,4 @@
 appschema 2016-09-30T01:27:32Z biscarch <chris@christopherbiscardi.com> # Add schema for SR objects
 uuid-ossp [appschema] 2016-09-30T15:26:08Z biscarch <chris@christopherbiscardi.com> # uuid-ossp
 blob-uploads [uuid-ossp] 2016-09-30T15:41:00Z biscarch <chris@christopherbiscardi.com> # Add table to track blob uploads
+blobs [appschema] 2016-10-07T16:57:28Z biscarch <chris@christopherbiscardi.com> # Add table to associate blob hashes to lo_ids

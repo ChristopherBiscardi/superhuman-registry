@@ -27,6 +27,7 @@ library
                      , SR.Blobs
                      , SR.HashedJSONContentType
                      , SR.Health
+                     , SR.Links
                      , SR.Metadata
                      , SR.Routes
                      , SR.Storage.Types

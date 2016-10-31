@@ -35,6 +35,7 @@ runPG action = do
         SessionError (ClientError Nothing) -> do
           $(logTM) CriticalS "Client Error"
           throwError err500
+        -- | TODO: ServerErrors might be handle-able in handlers?
         SessionError (ResultError (ServerError code message details hint)) -> do
           $(logTM) CriticalS $ ls (show code ++ "  " ++ show message)
           throwError err500

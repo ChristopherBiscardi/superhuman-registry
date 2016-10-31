@@ -20,7 +20,7 @@ import           Network.URI            (parseURI, relativeTo)
 import           Servant
 
 import           Backend                (headBlob, receivePushContent,
-                                         startNewUpload)
+                                         startNewUpload, registerBlob)
 import           Backend.Types          (BlobExistance (..))
 import           Config                 (AppConfig (..))
 import           Env                    (Settings (..))
@@ -42,13 +42,30 @@ getBlob namespace' name' uuid' = do
   liftIO $ print "getBlob"
   return undefined
 
-putBlob :: Namespace -> Name -> UUID -> Maybe Digest -> App NoContent
-putBlob namespace' name' uuid' digest' = do
+putBlob :: Namespace
+        -> Name
+        -> UUID
+        -> Maybe Digest
+        -> ByteString
+        -> App NoContent
+putBlob namespace'@(Namespace ns') name@(Name n') uuid' digest' blob' = do
   liftIO $ print "putBlob"
-  case digest' of
-    Nothing -> return NoContent
-    -- TODO: mv uuid file into sha256 location
-    Just a -> return NoContent
+  let hasBlob = B.length blob' /= 0
+  case hasBlob of
+    -- | If there is a blob here, it is the whole blob (and thus
+    --   requires a new "blob_upload"
+    True -> undefined
+    False ->
+      case digest' of
+        -- | No Digest means it is an "UNSUPPORTED" operation
+        --   TODO: Error Handling should be JSON
+        Nothing -> throwError err400 { errBody = "Unsupported due to invalid set of parameters" }
+        Just d -> do
+          -- | TODO: Check digest/uuid against `blob_uploads`
+          let reponame = T.intercalate "/" [ns', n']
+          _ <- registerBlob reponame uuid' d
+          -- | Location: /v2/<name>/blobs/<digest>
+          return NoContent
 
 deleteBlob :: Namespace -> Name -> UUID -> App NoContent
 deleteBlob namespace' name' uuid' = do
@@ -67,10 +84,13 @@ patchBlob :: Namespace
   ] NoContent)
 patchBlob namespace'@(Namespace ns') name'@(Name n') uuid' blob range' = do
   liftIO $ print range'
-  _ <- receivePushContent range' blob uuid' $ T.intercalate "/" [ns', n']
+  let reponame = T.intercalate "/" [ns', n']
+  _ <- receivePushContent range' blob uuid' reponame
   response <- mkHeaders range' uuid' namespace' name'
   return response
 
+-- | TODO: Check if the semantics rely on reponame or this is just
+-- a misplaced "blob check"
 headDigest :: Namespace
            -> Name
            -> Digest

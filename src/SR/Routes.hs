@@ -89,6 +89,7 @@ type Upload = "uploads" :> (
         Header "Docker-Upload-UUID" UUID
       ] NoContent) :<|>
     QueryParam "digest" Digest :>
+      ReqBody '[OctetStream] ByteString :>
       Put '[JSON] NoContent :<|>
     Delete '[JSON] NoContent
     )

@@ -13,7 +13,7 @@ import           Data.ByteString.Builder       (byteString, stringUtf8)
 import           Data.ByteString.Conversion.To (ToByteString (..))
 import           Data.Char                     (toLower)
 import           Data.Text                     (Text)
-import qualified Data.Text                     as T (unpack)
+import qualified Data.Text                     as T 
 import           Data.Text.Encoding            (encodeUtf8)
 import qualified Data.Text.Encoding            as TE
 import           GHC.Generics
@@ -44,6 +44,9 @@ newtype Name = Name Text deriving (Show, FromHttpApiData, ToHttpApiData)
 newtype Namespace = Namespace Text deriving (Show, FromHttpApiData, ToHttpApiData)
 newtype Ref = Ref Text deriving (Show, FromHttpApiData)
 newtype Digest = Digest ByteString deriving (Show)
+instance ToHttpApiData Digest where
+  toUrlPiece (Digest d) = TE.decodeUtf8 d
+
 
 data Range = Range { start :: Int
                    , end   :: Int
