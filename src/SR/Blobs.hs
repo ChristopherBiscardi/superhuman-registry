@@ -26,6 +26,7 @@ import           Config                 (AppConfig (..))
 import           Env                    (Settings (..))
 import           SR.Routes
 import           SR.Types
+import SR.Links (mkUploadLink)
 
 blobServer :: Namespace -> Name -> ServerT Blobs App
 blobServer namespace' name' = digests
@@ -123,9 +124,11 @@ uploadBlob :: Namespace -> Name -> App (Headers '[
     Header "Docker-Upload-UUID" UUID
   ] NoContent)
 uploadBlob namespace'@(Namespace ns') name'@(Name n') = do
-  uuid <- startNewUpload (T.intercalate "/" [ns', n'])
-  response <- mkHeaders Nothing uuid namespace' name'
-  return response
+  uuid <- startNewUpload $ T.intercalate "/" [ns', n']
+  uri <- mkUploadLink uuid namespace' name'
+  return $ addHeader uri
+         $ addHeader (Range 0 0)
+         $ addHeader uuid NoContent
 
 digestsServer :: Namespace -> Name -> ServerT Digests App
 digestsServer namespace' name' digest' = headDigest namespace' name' digest'

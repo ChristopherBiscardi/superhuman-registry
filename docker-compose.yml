@@ -22,3 +22,11 @@ services:
     ports:
       - "9000:8080"
     command: bash -c "stack build --allow-different-user --exec \"stack exec sr-exe --allow-different-user\""
+  proxy:
+    image: node:7
+    volumes:
+      - ./utils/proxy:/opt/proxy
+    working_dir: /opt/proxy
+    command: node index.js
+    ports:
+      - "8000:8000"
