@@ -23,10 +23,10 @@ services:
       - "9000:8080"
     command: bash -c "stack build --allow-different-user --exec \"stack exec sr-exe --allow-different-user\""
   proxy:
-    image: node:7
+    image: mitmproxy/mitmproxy
     volumes:
       - ./utils/proxy:/opt/proxy
     working_dir: /opt/proxy
-    command: node index.js
+    command: mitmproxy -R http://api:8080/
     ports:
-      - "8000:8000"
+      - "8080:8080"
